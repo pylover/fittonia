@@ -1,4 +1,3 @@
-from fittonia.webapi import app, configure
+from fittonia import app, configure
 
 configure()
-
