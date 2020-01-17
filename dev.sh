@@ -1,3 +1,3 @@
 #! /usr/bin/env bash
 
-gunicorn --reload wsgi:app
+gunicorn --timeout 9999 --reload fittonia:app

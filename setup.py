@@ -16,8 +16,6 @@ with open(
 
 dependencies = [
     'yhttp-pony',
-    'psycopg2',
-    'easycli'
 ]
 
 
