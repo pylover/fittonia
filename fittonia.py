@@ -1,7 +1,5 @@
 import os
 import sys
-#print(sys.path)
-#sys.exit(0)
 
 import yhttp
 from pony.orm import Required, PrimaryKey, Json, db_session as dbsession
@@ -12,14 +10,14 @@ __version__ = '0.1.0'
 
 
 app = yhttp.Application()
-app.extend(ponyext)
+db = ponyext.install(app)
 app.settings.merge('''
 db:
   url: postgres://postgres:postgres@localhost/fittonia
 ''')
 
 
-class Resource(app.db.Entity):
+class Resource(db.Entity):
     id = PrimaryKey(int, auto=True)
     path = Required(str, unique=True)
     content = Required(Json)
@@ -72,5 +70,5 @@ def post(req, path=None):
 
 
 if 'SERVER_SOFTWARE' in os.environ:
-    app.configure_extensions()
+    app.ready()
 

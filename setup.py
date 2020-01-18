@@ -15,7 +15,7 @@ with open(
 
 
 dependencies = [
-    'yhttp-pony',
+    'yhttp-pony >= 1, < 2',
 ]
 
 
