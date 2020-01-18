@@ -65,7 +65,7 @@ def update(req, path=None):
 @dbsession
 @yhttp.json
 def post(req, path=None):
-    r = Resource(path=path, content= req.form)
+    r = Resource(path=path, content=req.form)
     return req.form
 
 
