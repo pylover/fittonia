@@ -6,10 +6,18 @@ watch:
 cover:
 	pytest tests --cov=fittonia
 
+test:
+	pytest tests
+
 install:
 	pip install -e .
 
-ci:
+ci: install
 	pip install -r requirements-ci.txt
 
-.PHONY=watch cover
+dev: install
+	pip install -r requirements-test.txt
+
+
+.PHONY=watch cover test install ci dev
+

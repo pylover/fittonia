@@ -6,8 +6,7 @@ branches:
   - "/^(release\\/)?v([1-9]\\d*!)?(0|[1-9]\\d*)(\\.(0|[1-9]\\d*))*((a|b|rc)(0|[1-9]\\d*))?(\\.post(0|[1-9]\\d*))?(\\.dev(0|[1-9]\\d*))?$/"
 services:
 - postgresql
-before_install: make ci
-install: make install
+install: make ci 
 script: make cover
 after_success: coveralls
 
