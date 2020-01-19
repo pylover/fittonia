@@ -45,6 +45,19 @@ def get(req, username, path=None):
     return resource.content
 
 
+@app.route(r'/users/(.*)(/.*)?')
+@authenticate()
+@dbsession
+@json
+def post(req, username, path=None):
+    if req.identity.name != username:
+        raise statuses.forbidden()
+
+    path = f'/users/{username}{path or ""}'
+    r = Resource(path=path, author=username, content=req.form)
+    return req.form
+
+
 @app.route(r'/users/(.*)')
 @authenticate()
 @dbsession
@@ -72,14 +85,6 @@ def update(req, path=None):
     resource.content = req.form
     return req.form
 
-
-@app.route(r'/users/(.*)')
-@authenticate()
-@dbsession
-@json
-def post(req, path=None):
-    r = Resource(path=path, content=req.form)
-    return req.form
 
 
 if 'SERVER_SOFTWARE' in os.environ:
