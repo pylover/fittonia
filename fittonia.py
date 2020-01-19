@@ -97,7 +97,6 @@ def update(req, username, path=None):
     return req.form
 
 
-
-if 'SERVER_SOFTWARE' in os.environ:
+if 'SERVER_SOFTWARE' in os.environ:  # pragma: no cover
     app.ready()
 
