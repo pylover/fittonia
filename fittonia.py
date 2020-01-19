@@ -2,15 +2,16 @@ import os
 import sys
 
 from yhttp import Application, json, statuses
-from pony.orm import Required, PrimaryKey, Json, db_session as dbsession
-from yhttp.extensions import pony as ponyext, auth
+from pony.orm import Required, PrimaryKey, Json, db_session as dbsession, \
+    Optional
+from yhttp.extensions import pony as ponyext, auth as authext
 
 
 __version__ = '0.1.0'
 
 
 app = Application()
-authenticate = auth.install(app)
+authenticate = authext.install(app)
 db = ponyext.install(app)
 app.settings.merge('''
 db:
@@ -24,13 +25,18 @@ jwt:
 class Resource(db.Entity):
     id = PrimaryKey(int, auto=True)
     path = Required(str, unique=True)
+    author = Optional(str)
     content = Required(Json)
 
 
-@app.route(r'/(.*)')
+@app.route(r'/users/(.*)(/.*)?')
 @dbsession
 @json
-def get(req, path=None):
+def get(req, username, path=None):
+    path = f'/users/{username}{path or ""}'
+    if path.endswith('/'):
+        path = path[:-1]
+
     query = Resource.select(lambda r: r.path == path)
     resource = query.first()
     if resource is None:
@@ -39,7 +45,7 @@ def get(req, path=None):
     return resource.content
 
 
-@app.route(r'/(.*)')
+@app.route(r'/users/(.*)')
 @authenticate()
 @dbsession
 @json
@@ -53,7 +59,7 @@ def delete(req, path=None):
     return resource.content
 
 
-@app.route(r'/(.*)')
+@app.route(r'/users/(.*)')
 @authenticate()
 @dbsession
 @json
@@ -67,7 +73,7 @@ def update(req, path=None):
     return req.form
 
 
-@app.route(r'/(.*)')
+@app.route(r'/users/(.*)')
 @authenticate()
 @dbsession
 @json

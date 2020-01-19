@@ -1,15 +1,17 @@
-import pytest
+import functools
 
-import fittonia
+import pytest
+import bddrest
+from yhttp.extensions.pony.testing import freshdb
 
 
 @pytest.fixture
 def app():
-    dbname = 'fittonia_test'
-    fittonia.app.settings.merge(f'''
-    db:
-      url: postgres://postgres:postgres@localhost/{dbname}
-    ''')
+    from fittonia import app
+    return app
 
 
+@pytest.fixture
+def story(app):
+    return functools.partial(bddrest.Given, app)
 
