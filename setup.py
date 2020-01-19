@@ -16,7 +16,7 @@ with open(
 
 dependencies = [
     'yhttp-pony >= 1.1.2, < 2',
-    'yhttp-auth >= 1.1, < 2',
+    'yhttp-auth >= 1.1.1, < 2',
 ]
 
 
@@ -31,7 +31,6 @@ setup(
     long_description_content_type='text/markdown',  # This is important!
     install_requires=dependencies,
     py_modules=['fittonia'],
-    #entry_points=dict(console_scripts='fittonia=fittonia:main'),
     entry_points=dict(console_scripts='fittonia=fittonia:app.climain'),
     license='MIT',
 )

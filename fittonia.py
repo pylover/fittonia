@@ -25,24 +25,53 @@ jwt:
 
 usersroute = app.route(r'/users/([a-zA-Z0-9_]+)(/.*)?')
 globalroute = app.route(r'/(.*)?')
+everyone = authenticate()
+admin = authenticate(roles='admin')
 
 
 class Resource(db.Entity):
     id = PrimaryKey(int, auto=True)
-    path = Required(str, unique=True)
-    author = Optional(str)
+    path = Optional(str, unique=True)
+    author = Optional(str, nullable=True)
     content = Required(Json)
+
+
+def ensureglobalpath(req, path):
+    path = path or ''
+    if path.endswith('/'):
+        path = path[:-1]
+
+    return path
 
 
 def ensurepath(req, username, path):
     if req.identity.name != username:
         raise statuses.forbidden()
 
-    return f'/users/{username}{path or ""}'
+    return f'users/{username}{path or ""}'
+
+
+def getglobalresource(req, path):
+    path = ensureglobalpath(req, path)
+    query = Resource.select(lambda r: r.path == path and r.author is None)
+    resource = query.first()
+    if resource is None:
+        raise statuses.notfound()
+
+    return resource
+
+def getuserresource(req, username, path):
+    path = ensurepath(req, username, path)
+    query = Resource.select(lambda r: r.path == path)
+    resource = query.first()
+    if resource is None:
+        raise statuses.notfound()
+
+    return resource
 
 
 @usersroute
-@authenticate()
+@everyone
 @dbsession
 @json
 def post(req, username, path=None):
@@ -52,31 +81,21 @@ def post(req, username, path=None):
 
 
 @usersroute
-@authenticate()
+@everyone
 @dbsession
 @json
 def delete(req, username, path=None):
-    path = ensurepath(req, username, path)
-    query = Resource.select(lambda r: r.path == path)
-    resource = query.first()
-    if resource is None:
-        raise statuses.notfound()
-
+    resource = getuserresource(req, username, path)
     resource.delete()
     return resource.content
 
 
 @usersroute
-@authenticate()
+@everyone
 @dbsession
 @json
 def update(req, username, path=None):
-    path = ensurepath(req, username, path)
-    query = Resource.select(lambda r: r.path == path)
-    resource = query.first()
-    if resource is None:
-        raise statuses.notfound()
-
+    resource = getuserresource(req, username, path)
     resource.content = req.form
     return req.form
 
@@ -85,15 +104,42 @@ def update(req, username, path=None):
 @dbsession
 @json
 def get(req, path=None):
-    if path.endswith('/'):
-        path = path[:-1]
-
-    path = f'/{path}'
+    path = ensureglobalpath(req, path)
     query = Resource.select(lambda r: r.path == path)
     resource = query.first()
     if resource is None:
         raise statuses.notfound()
 
+    return resource.content
+
+
+@globalroute
+@admin
+@dbsession
+@json
+def post(req, path=None):
+    path = ensureglobalpath(req, path)
+    Resource(path=path, content=req.form)
+    return req.form
+
+
+@globalroute
+@admin
+@dbsession
+@json
+def update(req, path=None):
+    resource = getglobalresource(req, path)
+    resource.content = req.form
+    return req.form
+
+
+@globalroute
+@admin
+@dbsession
+@json
+def delete(req, path=None):
+    resource = getglobalresource(req, path)
+    resource.delete()
     return resource.content
 
 

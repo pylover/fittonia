@@ -7,8 +7,8 @@ from fittonia import Resource
 def test_usercontent_get(app, story):
     @dbsession
     def mockup():
-        Resource(path='/users/oscar', author='oscar', content=dict(foo='bar'))
-        Resource(path='/users/oscar/bar', author='oscar',
+        Resource(path='users/oscar', author='oscar', content=dict(foo='bar'))
+        Resource(path='users/oscar/bar', author='oscar',
                  content=dict(bar='baz'))
 
     app.ready()
@@ -56,7 +56,7 @@ def test_usercontent_post(app, story):
 def test_usercontent_delete(app, story):
     @dbsession
     def mockup():
-        Resource(path='/users/oscar', author='oscar', content=dict(foo='bar'))
+        Resource(path='users/oscar', author='oscar', content=dict(foo='bar'))
 
     app.ready()
     token = app.jwt.dump(dict(name='oscar')).decode()
@@ -81,7 +81,7 @@ def test_usercontent_delete(app, story):
 def test_usercontent_update(app, story):
     @dbsession
     def mockup():
-        Resource(path='/users/oscar', author='oscar', content=dict(foo='bar'))
+        Resource(path='users/oscar', author='oscar', content=dict(foo='bar'))
 
     app.ready()
     token = app.jwt.dump(dict(name='oscar')).decode()
