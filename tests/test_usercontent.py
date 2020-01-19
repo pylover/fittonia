@@ -52,3 +52,56 @@ def test_usercontent_post(app, story):
         when('Try to post another user\'s content', '/users/pascal')
         assert status == 403
 
+
+def test_usercontent_delete(app, story):
+    @dbsession
+    def mockup():
+        Resource(path='/users/oscar', author='oscar', content=dict(foo='bar'))
+
+    app.ready()
+    token = app.jwt.dump(dict(name='oscar')).decode()
+    mockup()
+
+    with story(
+        'Delete a user content',
+        '/users/oscar',
+        'DELETE',
+        headers=[f'Authorization: {token}']
+    ):
+        assert status == 200
+        assert response.json == {'foo': 'bar'}
+
+        when('Get the deleted resource', verb='GET')
+        assert status == 404
+
+        when('Delete an invalid item', '/users/oscar/neverland')
+        assert status == 404
+
+
+def test_usercontent_update(app, story):
+    @dbsession
+    def mockup():
+        Resource(path='/users/oscar', author='oscar', content=dict(foo='bar'))
+
+    app.ready()
+    token = app.jwt.dump(dict(name='oscar')).decode()
+    mockup()
+
+    with story(
+        'Delete a user content',
+        '/users/oscar',
+        'UPDATE',
+        json=dict(foo='baz'),
+        headers=[f'Authorization: {token}'],
+    ):
+        assert status == 200
+        assert response.json == {'foo': 'baz'}
+
+        when('Get the updated resource', verb='GET')
+        assert status == 200
+        assert response.json == {'foo': 'baz'}
+
+        when('Update an invalid item', '/users/oscar/neverland')
+        assert status == 404
+
+

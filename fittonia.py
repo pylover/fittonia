@@ -22,6 +22,10 @@ jwt:
 ''')
 
 
+
+usersroute = app.route(r'/users/([a-zA-Z0-9_]+)(/.*)?')
+
+
 class Resource(db.Entity):
     id = PrimaryKey(int, auto=True)
     path = Required(str, unique=True)
@@ -29,7 +33,7 @@ class Resource(db.Entity):
     content = Required(Json)
 
 
-@app.route(r'/users/(.*)(/.*)?')
+@usersroute
 @dbsession
 @json
 def get(req, username, path=None):
@@ -45,24 +49,30 @@ def get(req, username, path=None):
     return resource.content
 
 
-@app.route(r'/users/(.*)(/.*)?')
+
+def ensurepath(req, username, path):
+    if req.identity.name != username:
+        raise statuses.forbidden()
+
+    return f'/users/{username}{path or ""}'
+
+
+@usersroute
 @authenticate()
 @dbsession
 @json
 def post(req, username, path=None):
-    if req.identity.name != username:
-        raise statuses.forbidden()
-
-    path = f'/users/{username}{path or ""}'
-    r = Resource(path=path, author=username, content=req.form)
+    path = ensurepath(req, username, path)
+    Resource(path=path, author=username, content=req.form)
     return req.form
 
 
-@app.route(r'/users/(.*)')
+@usersroute
 @authenticate()
 @dbsession
 @json
-def delete(req, path=None):
+def delete(req, username, path=None):
+    path = ensurepath(req, username, path)
     query = Resource.select(lambda r: r.path == path)
     resource = query.first()
     if resource is None:
@@ -72,11 +82,12 @@ def delete(req, path=None):
     return resource.content
 
 
-@app.route(r'/users/(.*)')
+@usersroute
 @authenticate()
 @dbsession
 @json
-def update(req, path=None):
+def update(req, username, path=None):
+    path = ensurepath(req, username, path)
     query = Resource.select(lambda r: r.path == path)
     resource = query.first()
     if resource is None:
