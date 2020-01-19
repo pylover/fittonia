@@ -24,6 +24,7 @@ jwt:
 
 
 usersroute = app.route(r'/users/([a-zA-Z0-9_]+)(/.*)?')
+globalroute = app.route(r'/(.*)?')
 
 
 class Resource(db.Entity):
@@ -31,23 +32,6 @@ class Resource(db.Entity):
     path = Required(str, unique=True)
     author = Optional(str)
     content = Required(Json)
-
-
-@usersroute
-@dbsession
-@json
-def get(req, username, path=None):
-    path = f'/users/{username}{path or ""}'
-    if path.endswith('/'):
-        path = path[:-1]
-
-    query = Resource.select(lambda r: r.path == path)
-    resource = query.first()
-    if resource is None:
-        raise statuses.notfound()
-
-    return resource.content
-
 
 
 def ensurepath(req, username, path):
@@ -95,6 +79,22 @@ def update(req, username, path=None):
 
     resource.content = req.form
     return req.form
+
+
+@globalroute
+@dbsession
+@json
+def get(req, path=None):
+    if path.endswith('/'):
+        path = path[:-1]
+
+    path = f'/{path}'
+    query = Resource.select(lambda r: r.path == path)
+    resource = query.first()
+    if resource is None:
+        raise statuses.notfound()
+
+    return resource.content
 
 
 if 'SERVER_SOFTWARE' in os.environ:  # pragma: no cover
