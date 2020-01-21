@@ -47,6 +47,11 @@ pip install git+https://github.com/pylover/fittonia.git
 fittonia completion install
 ```
 
+Deactivate and activate your virtual environment to use bash auto completion.
+
+```bash
+deactivate && workon <virtualenv>
+```
 
 #### Help?
 
@@ -56,13 +61,6 @@ Use the `-h/--help` to discover all command line features.
 fittonia --help
 fittonia db --help
 fittonia jwt --help
-```
-
-
-Deactivate and activate your virtual environment to use bash auto completion.
-
-```bash
-deactivate && workon <virtualenv>
 ```
 
 #### Create database
