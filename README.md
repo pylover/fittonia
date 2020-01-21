@@ -66,7 +66,7 @@ fittonia jwt --help
 #### Create database
 
 ```bash
-fittonia db create [-p [postgres-password]]
+fittonia db create [-p [postgres-password]]  # default is: postgres
 ```
 
 
