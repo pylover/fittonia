@@ -41,7 +41,7 @@ pip install git+https://github.com/pylover/fittonia.git
 
 #### CLI
 
-#### Bash Autocompletion
+##### Bash Autocompletion
 
 ```bash
 fittonia completion install
@@ -53,7 +53,7 @@ Deactivate and activate your virtual environment to use bash auto completion.
 deactivate && workon <virtualenv>
 ```
 
-#### Help?
+##### Help?
 
 Use the `-h/--help` to discover all command line features.
 
@@ -63,10 +63,31 @@ fittonia db --help
 fittonia jwt --help
 ```
 
-#### Create database
+##### Create database
 
 ```bash
 fittonia db create [-p [postgres-password]]  # default is: postgres
 ```
 
+### Web API
+
+You can use any `wsgi` server to serve fittonia, such as `gunicorn`:
+create a file named:
+
+wsgi.py
+```python
+from fittonia import app
+```
+
+Then
+
+```bash
+gunicorn wsgi:app
+```
+
+Or you may use the `serve` command to run the python's builtin wsgi server:
+
+```bash
+fittonia serve [-b 8080]
+```
 
