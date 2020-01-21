@@ -91,3 +91,53 @@ Or you may use the `serve` command to run the python's builtin wsgi server:
 fittonia serve [-b 8080]
 ```
 
+### WebAPI Usage
+
+First, obtain a token via `fittonia jwt create <payload>` to use web service.
+
+```bash
+T=$(fittonia jwt create '{"roles": ["admin"], "name": "yourname"}')
+echo $T
+```
+
+Then issue a `curl` to create a json resource for example: `/foo':
+
+```bash
+curl \
+    -H"Authorization: $T" \
+    -H"Content-Type: application/json" \
+    -X POST \
+    -d'{"page": "foo"}' \
+    http://localhost:8080/foo
+```
+
+##### GET
+
+Get the `/foo` by:
+
+```bash
+curl localhost:8080/foo
+```
+
+There are some extra verbs to manage the web resources you already saved:
+
+##### UPDATE
+
+```bash
+curl \
+    -H"Authorization: $T" \
+    -H"Content-Type: application/json" \
+    -X UPDATE \
+    -d'{"page": "foo", "bar": "baz"}' \
+    http://localhost:8080/foo
+```
+
+##### DELETE
+
+```bash
+curl \
+    -H"Authorization: $T" \
+    -X DELETE \
+    http://localhost:8080/foo
+```
+
